@@ -9,7 +9,7 @@ from .models import BidderProfile
 
 @receiver(post_save, sender=User)
 def assign_bidder_code(sender, instance, created, **kwargs):
-    if created:
+    if created and not instance.is_staff and not instance.is_superuser:
         code = random.randint(100000, 999999)
         while BidderProfile.objects.filter(bidder_code=code).exists():
             code = random.randint(100000, 999999)
