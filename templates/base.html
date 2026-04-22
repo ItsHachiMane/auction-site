@@ -6,35 +6,38 @@
   <title>{% block title %}Auction Site{% endblock %}</title>
   <style>
     :root {
-      --bg: #050816;
-      --panel: #0f172a;
-      --panel-2: #111827;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --line: #1f2937;
-      --accent: #38bdf8;
-      --accent-2: #60a5fa;
-      --good: #14b8a6;
+      --bg: #090202;
+      --panel: #130505;
+      --panel-2: #1a0606;
+      --text: #f5e8e8;
+      --muted: #c9a7a7;
+      --line: #3a1010;
+      --accent: #d11f2f;
+      --accent-2: #8b0000;
+      --good: #e85d5d;
     }
-    body { font-family: system-ui, sans-serif; margin: 0; background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 60%); color: var(--text); }
+    body { font-family: system-ui, sans-serif; margin: 0; background: radial-gradient(circle at top, #2a0505 0%, var(--bg) 60%); color: var(--text); }
     nav, main { max-width: 960px; margin: 0 auto; padding: 16px; }
-    nav { display: flex; gap: 12px; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); }
-    a { color: var(--accent); text-decoration: none; }
+    nav { display: flex; gap: 12px; align-items: center; justify-content: space-between; background: rgba(26, 6, 6, 0.95); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+    a { color: #ff6b6b; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); padding: 16px; border: 1px solid var(--line); border-radius: 14px; margin: 16px 0; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
-    input, textarea, select { width: 100%; max-width: 420px; padding: 10px; margin: 6px 0 12px; border-radius: 8px; border: 1px solid var(--line); background: #020617; color: var(--text); }
-    button { width: 100%; max-width: 220px; padding: 10px; border-radius: 10px; border: none; background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #04111f; font-weight: 700; cursor: pointer; }
-    button:hover { filter: brightness(1.06); }
-    img { border-radius: 10px; margin: 6px; border: 1px solid var(--line); }
+    .card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); padding: 16px; border: 1px solid var(--line); border-radius: 14px; margin: 16px 0; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    input, textarea, select { width: 100%; max-width: 420px; padding: 10px; margin: 6px 0 12px; border-radius: 8px; border: 1px solid var(--line); background: #120303; color: var(--text); }
+    button { width: 100%; max-width: 220px; padding: 10px; border-radius: 10px; border: 1px solid #5f0f0f; background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff1f1; font-weight: 700; cursor: pointer; }
+    button:hover { filter: brightness(1.1); }
+    img { border-radius: 10px; margin: 6px; border: 1px solid var(--line); box-shadow: 0 0 20px rgba(209,31,47,.12); }
     ul { padding-left: 18px; }
-    .msg { background: rgba(20, 184, 166, 0.15); border: 1px solid rgba(20, 184, 166, 0.35); padding: 10px 12px; border-radius: 8px; margin: 12px 0; color: #99f6e4; }
+    .msg { background: rgba(209, 31, 47, 0.12); border: 1px solid rgba(209, 31, 47, 0.35); padding: 10px 12px; border-radius: 8px; margin: 12px 0; color: #ffb3b3; }
     p { color: var(--muted); }
-    h1, h2, h3, strong, label { color: var(--text); }
+    h1, h2, h3, strong, label { color: #fff2f2; }
+    .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
+    .status-open { color: #ff7b7b; }
+    .status-closed { color: #ffb3b3; }
   </style>
 </head>
 <body>
   <nav>
-    <div><strong>Auction Site</strong></div>
+    <div><a class="brand" href="{% url 'admin:auctions_auction_add' %}">Auction Site</a></div>
     <div>
       <a href="{% url 'dashboard' %}">Dashboard</a>
       <a href="{% url 'auction_list' %}">Auctions</a>
