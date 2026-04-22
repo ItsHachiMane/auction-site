@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h1>{{ auction.title }}</h1>
+  <p>{{ auction.description }}</p>
+
+  {% if images %}
+    <div>
+      {% for image in images %}
+        <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" style="max-width:240px;">
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div id="auction-live">
+    {% include 'auctions/partials/auction_fragment.html' %}
+  </div>
+
+  <h2>Place bid</h2>
+  {% if is_open %}
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="msg">{{ form.non_field_errors }}</div>
+      {% endif %}
+      {{ form.as_p }}
+      {% if form.amount.errors %}
+        <div class="msg">{{ form.amount.errors }}</div>
+      {% endif %}
+      <button type="submit">Bid</button>
+    </form>
+  {% else %}
+    <p>Bidding is closed.</p>
+  {% endif %}
+</div>
+
+<script>
+  let refreshMs = {{ time_left_seconds|yesno:'1000,5000' }};
+  let timer = null;
+
+  async function refreshAuction() {
+    try {
+      const res = await fetch("{% url 'auction_fragment' auction.pk %}");
+      if (!res.ok) return;
+      const html = await res.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const fragment = doc.getElementById('auction-fragment');
+      const live = document.getElementById('auction-live');
+      if (fragment && live) live.innerHTML = fragment.innerHTML;
+
+      const timeLeftEl = document.getElementById('time-left');
+      const seconds = timeLeftEl ? parseInt(timeLeftEl.textContent, 10) : 0;
+      const nextMs = seconds > 60 ? 5000 : seconds > 10 ? 2000 : 1000;
+      if (nextMs !== refreshMs) {
+        refreshMs = nextMs;
+        if (timer) clearInterval(timer);
+        timer = setInterval(refreshAuction, refreshMs);
+      }
+    } catch (e) {}
+  }
+
+  refreshAuction();
+  timer = setInterval(refreshAuction, refreshMs);
+</script>
+{% endblock %}

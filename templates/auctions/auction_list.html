@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Auctions</h1>
+{% for auction in auctions %}
+  <div class="card">
+    <h2><a href="{% url 'auction_detail' auction.pk %}">{{ auction.title }}</a></h2>
+    <p>${{ auction.current_price }} | ends {{ auction.end_at }}</p>
+  </div>
+{% empty %}
+  <div class="card"><p>No auctions yet.</p></div>
+{% endfor %}
+{% endblock %}

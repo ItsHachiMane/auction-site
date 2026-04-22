@@ -1,0 +1,17 @@
+<div id="auction-fragment">
+  <p>Current price: ${{ auction.current_price }}</p>
+  <p>Time left: <span id="time-left">{{ time_left_seconds }}</span> seconds</p>
+  <p>Status: <span id="auction-status">{% if is_open %}Open{% else %}Closed{% endif %}</span></p>
+  {% if winning_bid %}
+    <p>Winner: Bidder #{{ winning_bid.bidder.bidderprofile.bidder_code }} at ${{ winning_bid.amount }}</p>
+  {% endif %}
+
+  <h2>Bids</h2>
+  <ul>
+    {% for bid in bids %}
+      <li>Bidder #{{ bid.bidder.bidderprofile.bidder_code }} — ${{ bid.amount }}</li>
+    {% empty %}
+      <li>No bids yet.</li>
+    {% endfor %}
+  </ul>
+</div>
