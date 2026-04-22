@@ -36,8 +36,10 @@
   <nav>
     <div><strong>Auction Site</strong></div>
     <div>
+      <a href="{% url 'dashboard' %}">Dashboard</a>
       <a href="{% url 'auction_list' %}">Auctions</a>
       {% if user.is_authenticated %}
+        <a href="{% url 'my_history' %}">My History</a>
         <span> · {{ user.username }}</span>
         <a href="{% url 'logout' %}">Logout</a>
       {% else %}

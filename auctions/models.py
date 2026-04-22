@@ -7,6 +7,7 @@ class Auction(models.Model):
     title = models.CharField(max_length=160)
     description = models.TextField(blank=True)
     starting_price = models.DecimalField(max_digits=10, decimal_places=2)
+    reserve_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     current_price = models.DecimalField(max_digits=10, decimal_places=2)
     start_at = models.DateTimeField(default=timezone.now)
     end_at = models.DateTimeField()
@@ -38,6 +39,17 @@ class Auction(models.Model):
     def winning_bid(self):
         return self.bids.select_related("bidder__bidderprofile").order_by("-amount", "created_at").first()
 
+    @property
+    def winner(self):
+        bid = self.winning_bid
+        return bid.bidder if bid else None
+
+    @property
+    def sold(self):
+        if self.reserve_price is None:
+            return bool(self.winning_bid)
+        return bool(self.winning_bid and self.winning_bid.amount >= self.reserve_price)
+
 
 class BidderProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -45,6 +57,15 @@ class BidderProfile(models.Model):
 
     def __str__(self):
         return f"Bidder #{self.bidder_code}"
+
+
+class WatchlistItem(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="watchlist_items")
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="watchlist_items")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "auction")
 
 
 class AuctionImage(models.Model):

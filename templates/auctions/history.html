@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h1>My History</h1>
+  <h2>My bids</h2>
+  <ul>
+    {% for bid in bids %}
+      <li>{{ bid.auction.title }} — ${{ bid.amount }} — {{ bid.created_at }}</li>
+    {% empty %}
+      <li>No bids yet.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Watchlist</h2>
+  <ul>
+    {% for item in watched %}
+      <li><a href="{% url 'auction_detail' item.auction.pk %}">{{ item.auction.title }}</a></li>
+    {% empty %}
+      <li>No watchlist items.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

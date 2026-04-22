@@ -16,6 +16,13 @@
     {% include 'auctions/partials/auction_fragment.html' %}
   </div>
 
+  {% if user.is_authenticated %}
+    <form method="post" action="{% url 'toggle_watchlist' auction.pk %}">
+      {% csrf_token %}
+      <button type="submit">{% if watched %}Remove from watchlist{% else %}Add to watchlist{% endif %}</button>
+    </form>
+  {% endif %}
+
   <h2>Place bid</h2>
   {% if is_open %}
     <form method="post">
@@ -37,7 +44,6 @@
 <script>
   let refreshMs = {{ time_left_seconds|yesno:'1000,5000' }};
   let timer = null;
-
   async function refreshAuction() {
     try {
       const res = await fetch("{% url 'auction_fragment' auction.pk %}");
@@ -48,7 +54,6 @@
       const fragment = doc.getElementById('auction-fragment');
       const live = document.getElementById('auction-live');
       if (fragment && live) live.innerHTML = fragment.innerHTML;
-
       const timeLeftEl = document.getElementById('time-left');
       const seconds = timeLeftEl ? parseInt(timeLeftEl.textContent, 10) : 0;
       const nextMs = seconds > 60 ? 5000 : seconds > 10 ? 2000 : 1000;
@@ -59,7 +64,6 @@
       }
     } catch (e) {}
   }
-
   refreshAuction();
   timer = setInterval(refreshAuction, refreshMs);
 </script>
