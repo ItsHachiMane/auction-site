@@ -12,11 +12,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         now = timezone.now()
         samples = [
-            ("Vintage Watch", "Classic stainless steel watch.", 150, 24, ["watch1.jpg", "watch2.jpg"]),
-            ("Gaming PC", "High-end desktop with strong specs.", 900, 12, ["pc1.jpg", "pc2.jpg"]),
-            ("Designer Bag", "Limited edition bag in excellent condition.", 300, 48, ["bag1.jpg", "bag2.jpg"]),
+            ("Vintage Watch", "Classic stainless steel watch.", 150, 24, "timepiece,luxury"),
+            ("Gaming PC", "High-end desktop with strong specs.", 900, 12, "electronics,gaming"),
+            ("Designer Bag", "Limited edition bag in excellent condition.", 300, 48, "fashion,luxury"),
         ]
-        for title, desc, start, hours, _images in samples:
+        for title, desc, start, hours, categories in samples:
             Auction.objects.get_or_create(
                 title=title,
                 defaults={
@@ -26,6 +26,7 @@ class Command(BaseCommand):
                     "start_at": now,
                     "end_at": now + timedelta(hours=hours),
                     "is_active": True,
+                    "categories": categories,
                 },
             )
         self.stdout.write(self.style.SUCCESS("Seeded sample auctions."))

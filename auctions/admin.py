@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
 
-from .models import Auction, AuctionImage, Bid, BidderProfile, WatchlistItem
+from .models import Auction, AuctionImage, Bid, BidAudit, BidderProfile, Notification, WatchlistItem
 
 
 class AuctionImageInline(admin.TabularInline):
@@ -11,12 +11,12 @@ class AuctionImageInline(admin.TabularInline):
 
 @admin.register(Auction)
 class AuctionAdmin(admin.ModelAdmin):
-    list_display = ("title", "starting_price", "reserve_price", "current_price", "start_at", "end_at", "is_active", "status_label")
+    list_display = ("title", "starting_price", "reserve_price", "bid_increment", "current_price", "start_at", "end_at", "is_active", "status_label")
     list_filter = ("is_active", "start_at", "end_at")
-    search_fields = ("title", "description")
+    search_fields = ("title", "description", "categories", "admin_notes")
     inlines = [AuctionImageInline]
     readonly_fields = ("current_price", "created_at", "updated_at")
-    fields = ("title", "description", "starting_price", "reserve_price", "current_price", "start_at", "end_at", "is_active")
+    fields = ("title", "description", "starting_price", "reserve_price", "bid_increment", "current_price", "start_at", "end_at", "is_active", "categories", "admin_notes")
     actions = ["close_auctions", "reopen_auctions", "end_and_award_auctions"]
 
     def status_label(self, obj):
@@ -55,6 +55,12 @@ class BidAdmin(admin.ModelAdmin):
     readonly_fields = ("auction", "bidder", "amount", "created_at")
 
 
+@admin.register(BidAudit)
+class BidAuditAdmin(admin.ModelAdmin):
+    list_display = ("auction", "bidder", "amount", "created_at", "note")
+    search_fields = ("auction__title", "bidder__username", "note")
+
+
 @admin.register(BidderProfile)
 class BidderProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "bidder_code")
@@ -65,3 +71,9 @@ class BidderProfileAdmin(admin.ModelAdmin):
 class WatchlistItemAdmin(admin.ModelAdmin):
     list_display = ("user", "auction", "created_at")
     search_fields = ("user__username", "auction__title")
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("user", "message", "created_at", "read_at")
+    search_fields = ("user__username", "message")

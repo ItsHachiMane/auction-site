@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -8,10 +10,13 @@ class Auction(models.Model):
     description = models.TextField(blank=True)
     starting_price = models.DecimalField(max_digits=10, decimal_places=2)
     reserve_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    bid_increment = models.DecimalField(max_digits=10, decimal_places=2, default=1)
     current_price = models.DecimalField(max_digits=10, decimal_places=2)
     start_at = models.DateTimeField(default=timezone.now)
     end_at = models.DateTimeField()
     is_active = models.BooleanField(default=True)
+    categories = models.CharField(max_length=255, blank=True, help_text="Comma-separated categories/tags")
+    admin_notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -34,6 +39,12 @@ class Auction(models.Model):
         if self.is_active and timezone.now() >= self.end_at:
             self.is_active = False
             self.save(update_fields=["is_active", "updated_at"])
+
+    def extend_if_soft_close(self):
+        remaining = self.time_left_seconds
+        if remaining <= 60 and self.is_open:
+            self.end_at = timezone.now() + timedelta(minutes=5)
+            self.save(update_fields=["end_at", "updated_at"])
 
     @property
     def winning_bid(self):
@@ -83,3 +94,22 @@ class Bid(models.Model):
 
     class Meta:
         ordering = ["-amount", "created_at"]
+
+
+class BidAudit(models.Model):
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="audit_entries")
+    bidder = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    note = models.CharField(max_length=255, blank=True)
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications")
+    message = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+
+    def mark_read(self):
+        self.read_at = timezone.now()
+        self.save(update_fields=["read_at"])

@@ -1,19 +1,22 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import Max, Count
+from django.db.models import Max
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import BidForm, ProfileForm, SignupForm
-from .models import Auction, Bid, WatchlistItem
+from .models import Auction, Bid, BidAudit, Notification, WatchlistItem
 
 
 def dashboard(request):
-    auctions = Auction.objects.prefetch_related("images").order_by("-created_at")
+    query = request.GET.get("q", "").strip()
+    auctions = Auction.objects.prefetch_related("images")
+    if query:
+        auctions = auctions.filter(title__icontains=query)
+    auctions = auctions.order_by("-created_at")
     for auction in auctions:
         auction.close_if_needed()
     open_count = sum(1 for a in auctions if a.is_open)
@@ -23,6 +26,7 @@ def dashboard(request):
         "open_count": open_count,
         "closed_count": closed_count,
         "total_count": auctions.count(),
+        "query": query,
     })
 
 
@@ -35,6 +39,8 @@ def auction_detail(request, pk):
     auction.close_if_needed()
     highest_bid = auction.bids.aggregate(max_amount=Max("amount"))["max_amount"]
     next_min = highest_bid if highest_bid is not None else auction.starting_price
+    if highest_bid is not None:
+        next_min = highest_bid + auction.bid_increment
     form = BidForm(initial={"amount": next_min})
     if request.method == "POST":
         if not request.user.is_authenticated:
@@ -44,20 +50,23 @@ def auction_detail(request, pk):
         form = BidForm(request.POST)
         if form.is_valid():
             amount = form.cleaned_data["amount"]
-            if amount <= next_min:
-                form.add_error("amount", f"Bid must be higher than {next_min}.")
+            if amount < next_min:
+                form.add_error("amount", f"Bid must be at least {next_min}.")
             else:
                 with transaction.atomic():
                     auction = Auction.objects.select_for_update().get(pk=auction.pk)
                     auction.close_if_needed()
                     current_high = auction.bids.aggregate(max_amount=Max("amount"))["max_amount"]
-                    floor = current_high if current_high is not None else auction.starting_price
-                    if amount <= floor:
-                        form.add_error("amount", f"Bid must be higher than {floor}.")
+                    floor = current_high + auction.bid_increment if current_high is not None else auction.starting_price
+                    if amount < floor:
+                        form.add_error("amount", f"Bid must be at least {floor}.")
                     else:
                         Bid.objects.create(auction=auction, bidder=request.user, amount=amount)
+                        BidAudit.objects.create(auction=auction, bidder=request.user, amount=amount, note="Bid placed")
                         auction.current_price = amount
-                        auction.save(update_fields=["current_price", "updated_at"])
+                        auction.extend_if_soft_close()
+                        auction.save(update_fields=["current_price", "updated_at", "end_at"])
+                        Notification.objects.create(user=request.user, message=f"Your bid on {auction.title} was placed.")
                         messages.success(request, "Bid placed.")
                         return redirect("auction_detail", pk=auction.pk)
 
@@ -134,6 +143,12 @@ def edit_profile(request):
     else:
         form = ProfileForm(instance=request.user)
     return render(request, "auctions/profile_edit.html", {"form": form})
+
+
+@login_required
+def receipt(request, auction_id):
+    auction = get_object_or_404(Auction.objects.select_related(), pk=auction_id)
+    return render(request, "auctions/receipt.html", {"auction": auction, "winning_bid": auction.winning_bid, "sold": auction.sold})
 
 
 def signup(request):
