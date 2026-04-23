@@ -3,14 +3,14 @@
   <p>Ends: {{ auction.end_at }}</p>
   <p>Time left: <span id="time-left">{{ time_left_seconds }}</span> seconds</p>
   <p>Status: <span id="auction-status" class="{% if is_open %}status-open{% else %}status-closed{% endif %}">{% if is_open %}Open{% else %}Closed{% endif %}</span></p>
-  <p>Sale: {% if sold %}Sold{% else %}No sale{% endif %}</p>
+  <p>Sale: <span class="badge">{% if sold %}Sold{% else %}No sale{% endif %}</span></p>
   {% if winning_bid %}
-    <p>Winner: Bidder #{{ winning_bid.bidder.bidderprofile.bidder_code }} at ${{ winning_bid.amount }}</p>
+    <p>Winner: <span class="badge">Bidder #{{ winning_bid.bidder.bidderprofile.bidder_code }}</span> at ${{ winning_bid.amount }}</p>
   {% endif %}
   <h2>Bids</h2>
   <ul>
     {% for bid in bids %}
-      <li>Bidder #{{ bid.bidder.bidderprofile.bidder_code }} — ${{ bid.amount }}</li>
+      <li><span class="badge">Bidder #{{ bid.bidder.bidderprofile.bidder_code }}</span> — ${{ bid.amount }}</li>
     {% empty %}
       <li>No bids yet.</li>
     {% endfor %}

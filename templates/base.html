@@ -21,9 +21,10 @@
     nav { display: flex; gap: 12px; align-items: center; justify-content: space-between; background: rgba(26, 6, 6, 0.95); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); box-shadow: 0 8px 30px rgba(0,0,0,.35); }
     a { color: #ff6b6b; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); padding: 16px; border: 1px solid var(--line); border-radius: 14px; margin: 16px 0; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    .card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); padding: 18px; border: 1px solid var(--line); border-radius: 16px; margin: 18px 0; box-shadow: 0 10px 30px rgba(0,0,0,.38); }
+    .card h1, .card h2 { margin-top: 0; }
     input, textarea, select { width: 100%; max-width: 420px; padding: 10px; margin: 6px 0 12px; border-radius: 8px; border: 1px solid var(--line); background: #120303; color: var(--text); }
-    button { width: 100%; max-width: 220px; padding: 10px; border-radius: 10px; border: 1px solid #5f0f0f; background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff1f1; font-weight: 700; cursor: pointer; }
+    button { width: 100%; max-width: 220px; padding: 10px; border-radius: 10px; border: 1px solid #5f0f0f; background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff1f1; font-weight: 700; cursor: pointer; box-shadow: 0 0 18px rgba(209,31,47,.18); }
     button:hover { filter: brightness(1.1); }
     img { border-radius: 10px; margin: 6px; border: 1px solid var(--line); box-shadow: 0 0 20px rgba(209,31,47,.12); }
     ul { padding-left: 18px; }
@@ -31,8 +32,9 @@
     p { color: var(--muted); }
     h1, h2, h3, strong, label { color: #fff2f2; }
     .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
-    .status-open { color: #ff7b7b; }
-    .status-closed { color: #ffb3b3; }
+    .status-open { color: #ff7b7b; font-weight: 700; }
+    .status-closed { color: #ffb3b3; font-weight: 700; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: #ffd7d7; }
   </style>
 </head>
 <body>
@@ -43,7 +45,7 @@
       <a href="{% url 'auction_list' %}">Auctions</a>
       {% if user.is_authenticated %}
         <a href="{% url 'my_history' %}">My History</a>
-        <span> · {{ user.username }}</span>
+        <span class="badge">{{ user.username }}</span>
         <a href="{% url 'logout' %}">Logout</a>
       {% else %}
         <a href="{% url 'login' %}">Login</a>

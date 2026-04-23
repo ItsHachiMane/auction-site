@@ -2,7 +2,7 @@
 {% block content %}
 <div class="card">
   <h1>My History</h1>
-  <h2>My bids</h2>
+  <h2>Bids</h2>
   <ul>
     {% for bid in bids %}
       <li>{{ bid.auction.title }} — ${{ bid.amount }} — {{ bid.created_at }}</li>
