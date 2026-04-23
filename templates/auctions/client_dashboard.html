@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h1>Client Dashboard</h1>
+  <p>Username: {{ user.username }}</p>
+  <p>Bidder code: {% if profile %}<span class="badge">#{{ profile.bidder_code }}</span>{% else %}Not assigned{% endif %}</p>
+  <p>Email: {{ user.email|default:'—' }}</p>
+  <p>Joined: {{ joined }}</p>
+  <p>Bids placed: {{ bid_count }}</p>
+  <p>Watchlist items: {{ watch_count }}</p>
+  <p><a href="{% url 'my_history' %}">View my history</a></p>
+</div>
+{% endblock %}

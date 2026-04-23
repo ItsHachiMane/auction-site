@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Max
+from django.db.models import Max, Count
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -106,6 +106,19 @@ def my_history(request):
     bids = Bid.objects.filter(bidder=request.user).select_related("auction").order_by("-created_at")
     watched = WatchlistItem.objects.filter(user=request.user).select_related("auction").order_by("-created_at")
     return render(request, "auctions/history.html", {"bids": bids, "watched": watched})
+
+
+@login_required
+def client_dashboard(request):
+    profile = getattr(request.user, "bidderprofile", None)
+    bid_count = Bid.objects.filter(bidder=request.user).count()
+    watch_count = WatchlistItem.objects.filter(user=request.user).count()
+    return render(request, "auctions/client_dashboard.html", {
+        "profile": profile,
+        "bid_count": bid_count,
+        "watch_count": watch_count,
+        "joined": request.user.date_joined,
+    })
 
 
 def signup(request):
