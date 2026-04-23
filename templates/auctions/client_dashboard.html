@@ -10,4 +10,10 @@
   <p>Watchlist items: {{ watch_count }}</p>
   <p><a href="{% url 'my_history' %}">View my history</a></p>
 </div>
+
+<div class="card">
+  <h2>Quick Links</h2>
+  <p><a href="{% url 'auction_list' %}">Browse auctions</a></p>
+  <p><a href="{% url 'dashboard' %}">Back to dashboard</a></p>
+</div>
 {% endblock %}
