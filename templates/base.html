@@ -35,14 +35,19 @@
     .status-open { color: #ff7b7b; font-weight: 700; }
     .status-closed { color: #ffb3b3; font-weight: 700; }
     .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: #ffd7d7; }
+    .nav-left, .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   </style>
 </head>
 <body>
   <nav>
-    <div><a class="brand" href="{% url 'admin:auctions_auction_add' %}">Auction Site</a></div>
-    <div>
-      <a href="{% url 'dashboard' %}">Dashboard</a>
+    <div class="nav-left">
+      <a class="brand" href="{% url 'dashboard' %}">Auction Site</a>
+      {% if user.is_staff %}
+        <a href="{% url 'admin:auctions_auction_add' %}">Add Auction</a>
+      {% endif %}
       <a href="{% url 'auction_list' %}">Auctions</a>
+    </div>
+    <div class="nav-right">
       {% if user.is_authenticated %}
         <a href="{% url 'client_dashboard' %}">Client Dashboard</a>
         <a href="{% url 'my_history' %}">My History</a>
