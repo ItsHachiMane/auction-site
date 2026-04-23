@@ -1,13 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Max, Count
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .forms import BidForm, SignupForm
+from .forms import BidForm, ProfileForm, SignupForm
 from .models import Auction, Bid, WatchlistItem
 
 
@@ -105,7 +106,8 @@ def toggle_watchlist(request, pk):
 def my_history(request):
     bids = Bid.objects.filter(bidder=request.user).select_related("auction").order_by("-created_at")
     watched = WatchlistItem.objects.filter(user=request.user).select_related("auction").order_by("-created_at")
-    return render(request, "auctions/history.html", {"bids": bids, "watched": watched})
+    won = Bid.objects.filter(bidder=request.user, auction__end_at__lte=timezone.now()).select_related("auction").order_by("-created_at")
+    return render(request, "auctions/history.html", {"bids": bids, "watched": watched, "won": won})
 
 
 @login_required
@@ -119,6 +121,19 @@ def client_dashboard(request):
         "watch_count": watch_count,
         "joined": request.user.date_joined,
     })
+
+
+@login_required
+def edit_profile(request):
+    if request.method == "POST":
+        form = ProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated.")
+            return redirect("client_dashboard")
+    else:
+        form = ProfileForm(instance=request.user)
+    return render(request, "auctions/profile_edit.html", {"form": form})
 
 
 def signup(request):

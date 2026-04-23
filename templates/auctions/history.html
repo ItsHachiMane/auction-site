@@ -2,12 +2,23 @@
 {% block content %}
 <div class="card">
   <h1>My History</h1>
+  <p><a href="{% url 'client_dashboard' %}">Back to client dashboard</a></p>
+
   <h2>Bids</h2>
   <ul>
     {% for bid in bids %}
       <li>{{ bid.auction.title }} — ${{ bid.amount }} — {{ bid.created_at }}</li>
     {% empty %}
       <li>No bids yet.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Won auctions</h2>
+  <ul>
+    {% for bid in won %}
+      <li>{{ bid.auction.title }} — ${{ bid.amount }}</li>
+    {% empty %}
+      <li>No wins yet.</li>
     {% endfor %}
   </ul>
 
